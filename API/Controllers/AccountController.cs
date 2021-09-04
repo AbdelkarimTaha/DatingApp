@@ -1,6 +1,8 @@
 ﻿using API.Data;
+using API.DTOs;
 using API.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,14 +19,17 @@ namespace API.Controllers
 
 
         [HttpPost("register")]
-        public async Task<ActionResult<AppUser>> Register(string userName, string password) //because we using [ApiController] we don't need [FormBody]
+        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
         {
             using var hmac = new HMACSHA512(); //using statment because when finish with this class, it's disposed correctly  
 
+            if (await IsUserExists(registerDto.Username))
+                return BadRequest($"User Name \'{registerDto.Username}\' already taken!");
+
             var user = new AppUser
             {
-                UserName = userName,
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password)),
+                UserName = registerDto.Username.ToLower(),
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
                 PasswordSalt = hmac.Key
             };
             _context.Users.Add(user);
@@ -32,5 +37,11 @@ namespace API.Controllers
 
             return user;
         }
+
+        private async Task<bool> IsUserExists(string username)
+        {
+            return await _context.Users.AnyAsync(x => x.UserName == username.ToLower());
+        }
+
     }
 }
