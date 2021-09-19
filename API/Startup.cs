@@ -62,7 +62,7 @@ namespace API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:53032")); // AllowAnyHeader authontization headers, AllowAnyMethod same get , put , post or delete
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200")); // AllowAnyHeader authontization headers, AllowAnyMethod same get , put , post or delete
 
             app.UseEndpoints(endpoints =>
             {
